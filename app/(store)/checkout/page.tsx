@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useCartStore } from "@/lib/store/cart";
 import { formatPrice } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -10,7 +10,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { ChevronRight, Lock } from "lucide-react";
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const { data: session } = useSession();
   const { items, clearCart } = useCartStore();
   const router = useRouter();
@@ -312,5 +312,13 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="max-w-6xl mx-auto px-4 py-20 text-center text-gray-500">Загрузка...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }
