@@ -27,8 +27,6 @@ export const metadata: Metadata = {
   description: "Широкий выбор техники и электроники",
 };
 
-export const dynamic = "force-dynamic";
-
 async function getProducts(sp: SearchParamsType) {
   const {
     category,

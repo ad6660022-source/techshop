@@ -5,8 +5,6 @@ import { formatPrice } from "@/lib/utils";
 import Link from "next/link";
 import { Package, ShoppingBag, Users, TrendingUp, Plus } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-
 async function getStats() {
   const [
     totalOrders,
