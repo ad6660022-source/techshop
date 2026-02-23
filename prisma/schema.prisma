@@ -1,0 +1,213 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = env("DATABASE_PROVIDER")
+  url      = env("DATABASE_URL")
+}
+
+// ============ AUTH (NextAuth) ============
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============ USERS ============
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  phone         String?
+  password      String?
+  role          String    @default("CUSTOMER") // CUSTOMER | ADMIN
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+  orders   Order[]
+  wishlist WishlistItem[]
+}
+
+// ============ CATEGORIES ============
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  image       String?
+  icon        String?
+  parentId    String?
+  sortOrder   Int     @default(0)
+
+  parent   Category?  @relation("SubCategories", fields: [parentId], references: [id])
+  children Category[] @relation("SubCategories")
+  products Product[]
+}
+
+// ============ PRODUCTS ============
+
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String
+  price       Float
+  oldPrice    Float?
+  stock       Int     @default(0)
+  sku         String?
+  brand       String?
+  isActive    Boolean @default(true)
+  isFeatured  Boolean @default(false)
+  isNew       Boolean @default(false)
+  sortOrder   Int     @default(0)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  images     ProductImage[]
+  specs      ProductSpec[]
+  orderItems OrderItem[]
+  wishlist   WishlistItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductSpec {
+  id    String @id @default(cuid())
+  name  String
+  value String
+  group String @default("Основные")
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+// ============ ORDERS ============
+
+model Order {
+  id            String @id @default(cuid())
+  orderNumber   String @unique
+  // OrderStatus: PENDING | CONFIRMED | PROCESSING | SHIPPED | DELIVERED | CANCELLED
+  status        String @default("PENDING")
+  // PaymentStatus: PENDING | PAID | FAILED | REFUNDED
+  paymentStatus String @default("PENDING")
+  paymentId     String?
+
+  userId        String?
+  customerName  String
+  customerEmail String
+  customerPhone String
+
+  deliveryAddress String
+  deliveryCost    Float @default(0)
+
+  subtotal Float
+  discount Float @default(0)
+  total    Float
+
+  promoCode   String?
+  promoCodeId String?
+
+  notes String?
+
+  items OrderItem[]
+
+  user User? @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  quantity  Int
+  price     Float
+  productId String
+  orderId   String
+
+  product Product @relation(fields: [productId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+// ============ PROMO CODES ============
+
+model PromoCode {
+  id          String  @id @default(cuid())
+  code        String  @unique
+  description String?
+  // DiscountType: PERCENTAGE | FIXED
+  type        String  @default("PERCENTAGE")
+  value       Float
+  minOrder    Float   @default(0)
+  maxUses     Int?
+  usedCount   Int     @default(0)
+  isActive    Boolean @default(true)
+  expiresAt   DateTime?
+
+  createdAt DateTime @default(now())
+}
+
+// ============ WISHLIST ============
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}

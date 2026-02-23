@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #111827;
+
+  /* Brand colors */
+  --brand: #2563eb;
+  --brand-dark: #1d4ed8;
+  --cta: #f97316;
+  --cta-dark: #ea6c0a;
+  --success: #16a34a;
+
+  /* Grays */
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-cta: var(--cta);
+  --color-cta-dark: var(--cta-dark);
+  --color-success: var(--success);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Selection color */
+::selection {
+  background: #bfdbfe;
+  color: #1e40af;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Product card hover effect */
+.product-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* Button hover effects */
+.btn-primary {
+  background: #2563eb;
+  color: white;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-cta {
+  background: #f97316;
+  color: white;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.btn-cta:hover {
+  background: #ea6c0a;
+}
+.btn-cta:active {
+  transform: scale(0.98);
+}
