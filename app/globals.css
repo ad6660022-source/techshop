@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Hide native cursor on pointer devices — replaced by CustomCursor component */
+@media (pointer: fine) {
+  *, *::before, *::after {
+    cursor: none !important;
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #111827;
