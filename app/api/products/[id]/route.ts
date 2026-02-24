@@ -44,13 +44,21 @@ export async function PUT(
       ...(images && {
         images: {
           deleteMany: {},
-          create: images.map((url: string, i: number) => ({ url, order: i })),
+          create: images.map((img: any, i: number) => ({
+            url: img.url,
+            alt: img.alt || "",
+            sortOrder: i,
+          })),
         },
       }),
       ...(specs && {
         specs: {
           deleteMany: {},
-          create: specs.map((s: any, i: number) => ({ ...s, order: i })),
+          create: specs.map((s: any) => ({
+            name: s.name,
+            value: s.value,
+            group: s.group || "Основные",
+          })),
         },
       }),
     },

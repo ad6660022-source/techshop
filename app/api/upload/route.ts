@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       const filename = `${Date.now()}-${randomBytes(4).toString("hex")}.${ext}`;
       const filepath = path.join(uploadDir, filename);
       await writeFile(filepath, buffer);
-      urls.push(`/uploads/${filename}`);
+      urls.push(`/api/uploads/${filename}`);
     }
 
     return NextResponse.json({ urls });

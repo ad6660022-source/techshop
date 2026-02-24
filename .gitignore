@@ -46,3 +46,7 @@ prisma/dev.db-journal
 next-env.d.ts
 
 /app/generated/prisma
+
+# Uploaded product images (stored locally, not in git)
+/public/uploads/*
+!/public/uploads/.gitkeep
