@@ -16,6 +16,14 @@ export async function PATCH(
 
     const { status, paymentStatus } = await req.json();
 
+    // Block order status changes if already cancelled
+    if (status) {
+      const existing = await prisma.order.findUnique({ where: { id: params.id }, select: { status: true } });
+      if (existing?.status === "CANCELLED") {
+        return NextResponse.json({ error: "Нельзя изменить статус отменённого заказа" }, { status: 400 });
+      }
+    }
+
     const order = await prisma.order.update({
       where: { id: params.id },
       data: {
