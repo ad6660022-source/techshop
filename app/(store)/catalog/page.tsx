@@ -67,10 +67,15 @@ async function getProducts(sp: SearchParamsType) {
     : sortBy === "price_desc" ? { price: "desc" }
     : { createdAt: "desc" };
 
-  const [products, total, brands] = await Promise.all([
+  const [rawProducts, total, brands] = await Promise.all([
     prisma.product.findMany({
       where,
-      include: { images: { orderBy: { sortOrder: "asc" }, take: 3 }, category: true },
+      include: {
+        images: { orderBy: { sortOrder: "asc" }, take: 3 },
+        category: true,
+        reviews: { select: { rating: true } },
+        _count: { select: { orderItems: true } },
+      },
       orderBy,
       skip,
       take: limit,
@@ -82,6 +87,16 @@ async function getProducts(sp: SearchParamsType) {
       distinct: ["brand"],
     }),
   ]);
+
+  const products = rawProducts.map((p) => ({
+    ...p,
+    reviewCount: p.reviews.length,
+    avgRating:
+      p.reviews.length > 0
+        ? p.reviews.reduce((s, r) => s + r.rating, 0) / p.reviews.length
+        : 0,
+    orderCount: p._count.orderItems,
+  }));
 
   return { products, total, brands, pageNum, limit };
 }

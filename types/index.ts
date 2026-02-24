@@ -53,8 +53,25 @@ export interface Product {
   category?: Category;
   images?: ProductImage[];
   specs?: ProductSpec[];
+  // Computed from reviews
+  avgRating?: number;
+  reviewCount?: number;
+  orderCount?: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  adminReply: string | null;
+  isAutoReply: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  productId: string;
+  user?: { name: string | null; image: string | null };
 }
 
 export interface OrderItem {

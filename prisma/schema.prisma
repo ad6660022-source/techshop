@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -66,6 +66,7 @@ model User {
   orders        Order[]
   wishlist      WishlistItem[]
   supportChats  SupportChat[]
+  reviews       Review[]
 }
 
 // ============ CATEGORIES ============
@@ -109,6 +110,7 @@ model Product {
   specs      ProductSpec[]
   orderItems OrderItem[]
   wishlist   WishlistItem[]
+  reviews    Review[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -220,6 +222,26 @@ model SupportMessage {
   createdAt DateTime @default(now())
 
   chat SupportChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+}
+
+// ============ REVIEWS ============
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int      // 1-5
+  comment     String
+  adminReply  String?
+  isAutoReply Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
 }
 
 // ============ WISHLIST ============

@@ -14,6 +14,7 @@ import {
   ExternalLink,
   MessageCircle,
   PackageX,
+  Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { href: "/admin/returns", label: "Возвраты", icon: PackageX },
   { href: "/admin/categories", label: "Категории", icon: FolderOpen },
   { href: "/admin/promo", label: "Промокоды", icon: Tag },
+  { href: "/admin/reviews", label: "Отзывы", icon: Star },
   { href: "/admin/support", label: "Поддержка", icon: MessageCircle },
 ];
 

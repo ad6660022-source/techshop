@@ -1,13 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ProductGallery } from "@/components/store/ProductGallery";
 import { ProductActions } from "@/components/store/ProductActions";
 import { ProductTabs } from "@/components/store/ProductTabs";
+import { ReviewList } from "@/components/store/ReviewList";
+import { ReviewForm } from "@/components/store/ReviewForm";
 import { formatPrice, calculateDiscount } from "@/lib/utils";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Star, ShoppingBag, MessageSquare } from "lucide-react";
 import type { Metadata } from "next";
 
 interface ProductPageProps {
@@ -21,6 +25,11 @@ async function getProduct(slug: string) {
       images: { orderBy: { sortOrder: "asc" } },
       specs: { orderBy: { group: "asc" } },
       category: true,
+      reviews: {
+        include: { user: { select: { name: true, image: true } } },
+        orderBy: { createdAt: "desc" },
+      },
+      _count: { select: { orderItems: true } },
     },
   });
 }
@@ -40,12 +49,44 @@ export async function generateMetadata({ params: paramsPromise }: ProductPagePro
 
 export default async function ProductPage({ params: paramsPromise }: ProductPageProps) {
   const params = await paramsPromise;
-  const product = await getProduct(params.slug);
+  const [product, session] = await Promise.all([
+    getProduct(params.slug),
+    getServerSession(authOptions),
+  ]);
   if (!product) notFound();
 
   const discount = product.oldPrice
     ? calculateDiscount(product.price, product.oldPrice)
     : 0;
+
+  // Review stats
+  const reviews = product.reviews;
+  const reviewCount = reviews.length;
+  const avgRating =
+    reviewCount > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+      : 0;
+  const orderCount = product._count.orderItems;
+
+  // Check if current user can leave review
+  const userId = (session?.user as any)?.id as string | undefined;
+  let hasOrdered = false;
+  let alreadyReviewed = false;
+  if (userId) {
+    const [ordered, reviewed] = await Promise.all([
+      prisma.orderItem.findFirst({
+        where: {
+          productId: product.id,
+          order: { userId, status: { in: ["DELIVERED", "RETURNED"] } },
+        },
+      }),
+      prisma.review.findUnique({
+        where: { userId_productId: { userId, productId: product.id } },
+      }),
+    ]);
+    hasOrdered = !!ordered;
+    alreadyReviewed = !!reviewed;
+  }
 
   // Only non-empty specs for quick preview
   const visibleSpecs = product.specs.filter((s) => s.name?.trim() && s.value?.trim());
@@ -91,9 +132,28 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
               {product.brand}
             </p>
           )}
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
             {product.name}
           </h1>
+
+          {/* Rating + stats */}
+          <div className="flex items-center gap-4 mb-4 flex-wrap">
+            {reviewCount > 0 ? (
+              <div className="flex items-center gap-1.5">
+                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                <span className="text-sm font-semibold text-gray-900">{avgRating.toFixed(1)}</span>
+                <span className="text-sm text-gray-400">({reviewCount} отзывов)</span>
+              </div>
+            ) : (
+              <span className="text-sm text-gray-400">Нет отзывов</span>
+            )}
+            {orderCount > 0 && (
+              <div className="flex items-center gap-1.5 text-sm text-gray-400">
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span>{orderCount} заказов</span>
+              </div>
+            )}
+          </div>
 
           {/* Stock status */}
           <div className="mb-5">
@@ -158,6 +218,27 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
 
       {/* Tabs: Description / Specs */}
       <ProductTabs description={product.description} specs={product.specs} />
+
+      {/* Reviews */}
+      <section className="mt-10">
+        <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <MessageSquare className="w-5 h-5 text-blue-600" />
+          Отзывы покупателей
+          {reviewCount > 0 && (
+            <span className="text-sm font-normal text-gray-400">({reviewCount})</span>
+          )}
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <ReviewList reviews={reviews} avgRating={avgRating} reviewCount={reviewCount} />
+          <div>
+            <ReviewForm
+              productId={product.id}
+              hasOrdered={hasOrdered}
+              alreadyReviewed={alreadyReviewed}
+            />
+          </div>
+        </div>
+      </section>
 
       {/* Related products */}
       {related.length > 0 && (

@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, ShoppingCart, BarChart2 } from "lucide-react";
+import { Heart, ShoppingCart, BarChart2, Star } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
 import { useWishlistStore } from "@/lib/store/wishlist";
 import { useCompareStore } from "@/lib/store/compare";
@@ -114,7 +114,27 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
         <div className="p-4 flex flex-col flex-1">
           {product.brand && <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wide">{product.brand}</p>}
-          <h3 className="text-sm font-medium text-gray-900 line-clamp-2 flex-1 mb-3">{product.name}</h3>
+          <h3 className="text-sm font-medium text-gray-900 line-clamp-2 flex-1 mb-2">{product.name}</h3>
+
+          {/* Rating row */}
+          {(product.reviewCount ?? 0) > 0 ? (
+            <div className="flex items-center gap-1.5 mb-2">
+              <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+              <span className="text-xs font-semibold text-gray-700">
+                {(product.avgRating ?? 0).toFixed(1)}
+              </span>
+              <span className="text-xs text-gray-400">
+                ({product.reviewCount} отз.)
+              </span>
+              {(product.orderCount ?? 0) > 0 && (
+                <span className="text-xs text-gray-400">· {product.orderCount} заказов</span>
+              )}
+            </div>
+          ) : (
+            <div className="mb-2">
+              <span className="text-xs text-gray-400">Нет отзывов</span>
+            </div>
+          )}
 
           <div className="mb-3">
             <div className="flex items-baseline gap-2">

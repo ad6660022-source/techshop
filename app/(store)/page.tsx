@@ -6,26 +6,43 @@ import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/store/ProductCard";
 import { ArrowRight, Truck, Shield, RotateCcw, Headphones } from "lucide-react";
 
+function withRating<T extends { reviews: { rating: number }[]; _count: { orderItems: number } }>(
+  products: T[]
+) {
+  return products.map((p) => ({
+    ...p,
+    reviewCount: p.reviews.length,
+    avgRating:
+      p.reviews.length > 0
+        ? p.reviews.reduce((s, r) => s + r.rating, 0) / p.reviews.length
+        : 0,
+    orderCount: p._count.orderItems,
+  }));
+}
+
+const PRODUCT_INCLUDE = {
+  images: { orderBy: { sortOrder: "asc" as const }, take: 3 },
+  category: true,
+  reviews: { select: { rating: true } },
+  _count: { select: { orderItems: true } },
+} as const;
+
 async function getFeaturedProducts() {
-  return prisma.product.findMany({
+  const products = await prisma.product.findMany({
     where: { isActive: true, isFeatured: true },
-    include: {
-      images: { orderBy: { sortOrder: "asc" }, take: 3 },
-      category: true,
-    },
+    include: PRODUCT_INCLUDE,
     take: 4,
   });
+  return withRating(products);
 }
 
 async function getNewProducts() {
-  return prisma.product.findMany({
+  const products = await prisma.product.findMany({
     where: { isActive: true, isNew: true },
-    include: {
-      images: { orderBy: { sortOrder: "asc" }, take: 3 },
-      category: true,
-    },
+    include: PRODUCT_INCLUDE,
     take: 4,
   });
+  return withRating(products);
 }
 
 async function getCategories() {
