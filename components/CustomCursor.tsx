@@ -79,7 +79,7 @@ export function CustomCursor() {
           top: 0,
           left: 0,
           pointerEvents: "none",
-          zIndex: 99999,
+          zIndex: 2147483647,
           willChange: "transform",
           opacity: 0,
         }}
@@ -92,6 +92,7 @@ export function CustomCursor() {
             borderRadius: "50%",
             transform: "translate(-50%, -50%)",
             boxShadow: "0 0 6px rgba(37, 99, 235, 0.5)",
+            pointerEvents: "none",
           }}
         />
       </div>
@@ -104,7 +105,7 @@ export function CustomCursor() {
           top: 0,
           left: 0,
           pointerEvents: "none",
-          zIndex: 99998,
+          zIndex: 2147483646,
           willChange: "transform",
           opacity: 0,
         }}
@@ -117,6 +118,7 @@ export function CustomCursor() {
             border: "1.5px solid rgba(37, 99, 235, 0.35)",
             borderRadius: "50%",
             transform: "translate(-50%, -50%)",
+            pointerEvents: "none",
             transition:
               "width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, border-color 0.25s ease",
             background: "transparent",
