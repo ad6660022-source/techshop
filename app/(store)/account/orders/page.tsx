@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -5,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { formatDate, formatPrice, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/lib/utils";
 import { Package } from "lucide-react";
+import { CancelOrderButton } from "@/components/store/CancelOrderButton";
 
 export default async function OrdersPage() {
   const session = await getServerSession(authOptions);
@@ -49,15 +52,26 @@ export default async function OrdersPage() {
         <div className="space-y-4">
           {orders.map((order) => (
             <div key={order.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 flex-wrap gap-3">
                 <div>
                   <span className="font-semibold text-gray-900">Заказ #{order.orderNumber}</span>
                   <span className="ml-3 text-sm text-gray-400">{formatDate(order.createdAt)}</span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${ORDER_STATUS_COLORS[order.status] || "bg-gray-100 text-gray-700"}`}>
                     {ORDER_STATUS_LABELS[order.status] || order.status}
                   </span>
+                  {/* Refund pending badge */}
+                  {order.status === "CANCELLED" && order.paymentStatus === "PAID" && (
+                    <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+                      Ожидается возврат средств
+                    </span>
+                  )}
+                  {order.status === "CANCELLED" && order.paymentStatus === "REFUNDED" && (
+                    <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                      Средства возвращены
+                    </span>
+                  )}
                   <span className="text-sm font-bold text-gray-900">{formatPrice(order.total)}</span>
                 </div>
               </div>
@@ -79,11 +93,19 @@ export default async function OrdersPage() {
                     </p>
                   )}
                 </div>
-                <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between text-xs text-gray-500">
-                  <span>Доставка: {order.deliveryCost > 0 ? formatPrice(order.deliveryCost) : "Бесплатно"}</span>
-                  {order.promoCode && (
-                    <span className="text-green-600">Промокод: {order.promoCode}</span>
-                  )}
+                <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between flex-wrap gap-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-4">
+                    <span>Доставка: {order.deliveryCost > 0 ? formatPrice(order.deliveryCost) : "Бесплатно"}</span>
+                    {order.promoCode && (
+                      <span className="text-green-600">Промокод: {order.promoCode}</span>
+                    )}
+                  </div>
+                  <CancelOrderButton
+                    orderId={order.id}
+                    orderNumber={order.orderNumber}
+                    status={order.status}
+                    paymentStatus={order.paymentStatus}
+                  />
                 </div>
               </div>
             </div>
