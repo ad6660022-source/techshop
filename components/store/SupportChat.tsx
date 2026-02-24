@@ -17,7 +17,7 @@ interface Chat {
 }
 
 export function SupportChat() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
   const [chat, setChat] = useState<Chat | null>(null);
   const [text, setText] = useState("");
@@ -26,8 +26,10 @@ export function SupportChat() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Only show for authenticated non-admin users
-  if (!session || (session.user as any)?.role === "ADMIN") return null;
+  const isVisible =
+    status !== "loading" &&
+    !!session &&
+    (session.user as any)?.role !== "ADMIN";
 
   const loadChat = async () => {
     try {
@@ -39,7 +41,9 @@ export function SupportChat() {
     } catch {}
   };
 
+  // All hooks must be before any conditional return
   useEffect(() => {
+    if (!isVisible) return;
     if (open && !chat) {
       setLoading(true);
       loadChat().finally(() => setLoading(false));
@@ -49,8 +53,10 @@ export function SupportChat() {
     } else {
       if (pollRef.current) clearInterval(pollRef.current);
     }
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, [open]);
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, [open, isVisible]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -74,6 +80,9 @@ export function SupportChat() {
     }
   };
 
+  // Only show for authenticated non-admin users
+  if (!isVisible) return null;
+
   return (
     <>
       {/* Floating button */}
@@ -83,7 +92,7 @@ export function SupportChat() {
         title="Поддержка"
       >
         {open ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
-        {!open && chat && chat.messages.filter(m => m.isAdmin).length > 0 && (
+        {!open && chat && chat.messages.filter((m) => m.isAdmin).length > 0 && (
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs flex items-center justify-center">
             !
           </span>
@@ -92,8 +101,10 @@ export function SupportChat() {
 
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden"
-          style={{ height: "420px" }}>
+        <div
+          className="fixed bottom-24 right-6 z-50 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden"
+          style={{ height: "420px" }}
+        >
           {/* Header */}
           <div className="bg-blue-600 text-white px-4 py-3 flex items-center gap-3">
             <MessageCircle className="w-5 h-5" />
@@ -116,12 +127,17 @@ export function SupportChat() {
               </div>
             ) : (
               chat?.messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.isAdmin ? "justify-start" : "justify-end"}`}>
-                  <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
-                    msg.isAdmin
-                      ? "bg-white border border-gray-100 text-gray-800 rounded-tl-sm"
-                      : "bg-blue-600 text-white rounded-tr-sm"
-                  }`}>
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.isAdmin ? "justify-start" : "justify-end"}`}
+                >
+                  <div
+                    className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
+                      msg.isAdmin
+                        ? "bg-white border border-gray-100 text-gray-800 rounded-tl-sm"
+                        : "bg-blue-600 text-white rounded-tr-sm"
+                    }`}
+                  >
                     {msg.content}
                   </div>
                 </div>
@@ -135,7 +151,9 @@ export function SupportChat() {
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), sendMessage())}
+              onKeyDown={(e) =>
+                e.key === "Enter" && !e.shiftKey && (e.preventDefault(), sendMessage())
+              }
               placeholder="Ваш вопрос..."
               className="flex-1 h-9 px-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500"
             />
@@ -144,7 +162,11 @@ export function SupportChat() {
               disabled={sending || !text.trim()}
               className="w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
-              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              {sending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>
