@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ProductGallery } from "@/components/store/ProductGallery";
 import { ProductActions } from "@/components/store/ProductActions";
+import { ProductTabs } from "@/components/store/ProductTabs";
 import { formatPrice, calculateDiscount } from "@/lib/utils";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
@@ -46,12 +47,8 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
     ? calculateDiscount(product.price, product.oldPrice)
     : 0;
 
-  // Group specs by group
-  const specGroups = product.specs.reduce((acc, spec) => {
-    if (!acc[spec.group]) acc[spec.group] = [];
-    acc[spec.group].push(spec);
-    return acc;
-  }, {} as Record<string, typeof product.specs>);
+  // Only non-empty specs for quick preview
+  const visibleSpecs = product.specs.filter((s) => s.name?.trim() && s.value?.trim());
 
   // Related products
   const related = await prisma.product.findMany({
@@ -143,17 +140,11 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
           {/* Actions */}
           <ProductActions product={product as any} />
 
-          {/* Description */}
-          <div className="mt-6 pt-6 border-t border-gray-100">
-            <h3 className="font-semibold text-gray-900 mb-2">О товаре</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">{product.description}</p>
-          </div>
-
-          {/* Quick specs */}
-          {product.specs.length > 0 && (
-            <div className="mt-6">
+          {/* Quick specs preview (first 4 non-empty) */}
+          {visibleSpecs.length > 0 && (
+            <div className="mt-6 pt-6 border-t border-gray-100">
               <div className="grid grid-cols-2 gap-2">
-                {product.specs.slice(0, 4).map((spec) => (
+                {visibleSpecs.slice(0, 4).map((spec) => (
                   <div key={spec.id} className="bg-gray-50 rounded-lg px-3 py-2">
                     <p className="text-xs text-gray-500">{spec.name}</p>
                     <p className="text-sm font-medium text-gray-900 mt-0.5">{spec.value}</p>
@@ -166,7 +157,7 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
       </div>
 
       {/* Tabs: Description / Specs */}
-      <ProductTabs description={product.description} specGroups={specGroups} />
+      <ProductTabs description={product.description} specs={product.specs} />
 
       {/* Related products */}
       {related.length > 0 && (
@@ -180,52 +171,6 @@ export default async function ProductPage({ params: paramsPromise }: ProductPage
           </div>
         </section>
       )}
-    </div>
-  );
-}
-
-function ProductTabs({
-  description,
-  specGroups,
-}: {
-  description: string;
-  specGroups: Record<string, { name: string; value: string }[]>;
-}) {
-  return (
-    <div className="border border-gray-100 rounded-2xl overflow-hidden">
-      <div className="flex border-b border-gray-100">
-        <span className="px-6 py-3 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 -mb-px bg-white">
-          Характеристики
-        </span>
-      </div>
-      <div className="p-6">
-        {Object.entries(specGroups).length === 0 ? (
-          <p className="text-gray-500 text-sm">{description}</p>
-        ) : (
-          <div className="space-y-6">
-            {Object.entries(specGroups).map(([group, specs]) => (
-              <div key={group}>
-                <h4 className="text-sm font-bold text-gray-900 mb-3 pb-2 border-b border-gray-100">
-                  {group}
-                </h4>
-                <div className="space-y-2">
-                  {specs.map((spec) => (
-                    <div
-                      key={spec.name}
-                      className="flex justify-between py-2 border-b border-gray-50"
-                    >
-                      <span className="text-sm text-gray-500 w-1/2">{spec.name}</span>
-                      <span className="text-sm font-medium text-gray-900 text-right w-1/2">
-                        {spec.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
