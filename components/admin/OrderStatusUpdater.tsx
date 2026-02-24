@@ -82,50 +82,51 @@ export function OrderStatusUpdater({ orderId, currentStatus, currentPaymentStatu
             Заказ отменён — статус изменить нельзя
           </p>
         ) : (
-          <div className="flex flex-wrap gap-2">
-            {ORDER_STATUSES.map((s) => (
-              <button
-                key={s}
-                onClick={() => s === "CANCELLED" ? setConfirmCancel(true) : handleStatusUpdate(s)}
-                disabled={loading}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  s === status
-                    ? "bg-gray-900 text-white"
-                    : s === "CANCELLED"
-                    ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {ORDER_STATUS_LABELS[s] || s}
-              </button>
-            ))}
-          </div>
-
-          {/* Cancel confirmation dialog */}
-          {confirmCancel && (
-            <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-xl">
-              <p className="text-xs font-semibold text-red-700 mb-1">Отменить заказ?</p>
-              <p className="text-xs text-red-600 mb-3">
-                После отмены изменить статус будет невозможно. Это действие необратимо.
-              </p>
-              <div className="flex gap-2">
+          <>
+            <div className="flex flex-wrap gap-2">
+              {ORDER_STATUSES.map((s) => (
                 <button
-                  onClick={() => { setConfirmCancel(false); handleStatusUpdate("CANCELLED"); }}
+                  key={s}
+                  onClick={() => s === "CANCELLED" ? setConfirmCancel(true) : handleStatusUpdate(s)}
                   disabled={loading}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    s === status
+                      ? "bg-gray-900 text-white"
+                      : s === "CANCELLED"
+                      ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
                 >
-                  {loading ? "Отменяем..." : "Да, отменить"}
+                  {ORDER_STATUS_LABELS[s] || s}
                 </button>
-                <button
-                  onClick={() => setConfirmCancel(false)}
-                  disabled={loading}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
-                >
-                  Нет
-                </button>
-              </div>
+              ))}
             </div>
-          )}
+
+            {confirmCancel && (
+              <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-xs font-semibold text-red-700 mb-1">Отменить заказ?</p>
+                <p className="text-xs text-red-600 mb-3">
+                  После отмены изменить статус будет невозможно. Это действие необратимо.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setConfirmCancel(false); handleStatusUpdate("CANCELLED"); }}
+                    disabled={loading}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+                  >
+                    {loading ? "Отменяем..." : "Да, отменить"}
+                  </button>
+                  <button
+                    onClick={() => setConfirmCancel(false)}
+                    disabled={loading}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
+                  >
+                    Нет
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
