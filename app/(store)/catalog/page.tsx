@@ -3,7 +3,14 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/store/ProductCard";
 import { CatalogFilters } from "@/components/store/CatalogFilters";
+import Image from "next/image";
+import Link from "next/link";
 import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Каталог товаров",
+  description: "Широкий выбор техники и электроники",
+};
 
 type SearchParamsType = {
   category?: string;
@@ -22,23 +29,18 @@ interface CatalogPageProps {
   searchParams: Promise<SearchParamsType>;
 }
 
-export const metadata: Metadata = {
-  title: "Каталог товаров",
-  description: "Широкий выбор техники и электроники",
-};
+async function getCategories() {
+  return prisma.category.findMany({
+    where: { parentId: null },
+    include: { _count: { select: { products: { where: { isActive: true } } } } },
+    orderBy: { sortOrder: "asc" },
+  });
+}
 
 async function getProducts(sp: SearchParamsType) {
   const {
-    category,
-    search,
-    brand,
-    minPrice,
-    maxPrice,
-    inStock,
-    featured,
-    isNew,
-    sortBy = "newest",
-    page = "1",
+    category, search, brand, minPrice, maxPrice,
+    inStock, featured, isNew, sortBy = "newest", page = "1",
   } = sp;
 
   const pageNum = parseInt(page);
@@ -49,11 +51,11 @@ async function getProducts(sp: SearchParamsType) {
   if (category) where.category = { slug: category };
   if (search)
     where.OR = [
-      { name: { contains: search } },
-      { description: { contains: search } },
-      { brand: { contains: search } },
+      { name: { contains: search, mode: "insensitive" } },
+      { description: { contains: search, mode: "insensitive" } },
+      { brand: { contains: search, mode: "insensitive" } },
     ];
-  if (brand) where.brand = { contains: brand };
+  if (brand) where.brand = { contains: brand, mode: "insensitive" };
   if (minPrice) where.price = { ...where.price, gte: parseFloat(minPrice) };
   if (maxPrice) where.price = { ...where.price, lte: parseFloat(maxPrice) };
   if (inStock === "true") where.stock = { gt: 0 };
@@ -61,19 +63,14 @@ async function getProducts(sp: SearchParamsType) {
   if (isNew === "true") where.isNew = true;
 
   const orderBy: any =
-    sortBy === "price_asc"
-      ? { price: "asc" }
-      : sortBy === "price_desc"
-      ? { price: "desc" }
-      : { createdAt: "desc" };
+    sortBy === "price_asc" ? { price: "asc" }
+    : sortBy === "price_desc" ? { price: "desc" }
+    : { createdAt: "desc" };
 
   const [products, total, brands] = await Promise.all([
     prisma.product.findMany({
       where,
-      include: {
-        images: { orderBy: { sortOrder: "asc" }, take: 1 },
-        category: true,
-      },
+      include: { images: { orderBy: { sortOrder: "asc" }, take: 3 }, category: true },
       orderBy,
       skip,
       take: limit,
@@ -97,17 +94,57 @@ async function getCategoryInfo(slug?: string) {
 export default async function CatalogPage({ searchParams: searchParamsPromise }: CatalogPageProps) {
   const sp = await searchParamsPromise;
 
-  const [{ products, total, brands, pageNum, limit }, currentCategory] =
-    await Promise.all([
-      getProducts(sp),
-      getCategoryInfo(sp.category),
-    ]);
+  const hasFilter = !!(sp.category || sp.search || sp.brand || sp.minPrice ||
+    sp.maxPrice || sp.inStock || sp.featured || sp.isNew);
+
+  // Without filters — show category grid
+  if (!hasFilter) {
+    const categories = await getCategories();
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-10">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Каталог</h1>
+        <p className="text-gray-500 text-sm mb-8">Выберите категорию</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              href={`/catalog?category=${cat.slug}`}
+              className="group flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 overflow-hidden"
+            >
+              <div className="relative h-40 bg-gray-50">
+                {cat.image ? (
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 640px) 50vw, 25vw"
+                  />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-5xl">
+                    {cat.icon || "📦"}
+                  </div>
+                )}
+              </div>
+              <div className="p-4">
+                <h3 className="font-semibold text-gray-900">{cat.name}</h3>
+                <p className="text-xs text-gray-500 mt-0.5">{cat._count.products} товаров</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // With filters — show products
+  const [{ products, total, brands, pageNum, limit }, currentCategory] = await Promise.all([
+    getProducts(sp),
+    getCategoryInfo(sp.category),
+  ]);
 
   const totalPages = Math.ceil(total / limit);
-  const brandList = brands
-    .map((b) => b.brand)
-    .filter((b): b is string => !!b)
-    .sort();
+  const brandList = brands.map((b) => b.brand).filter((b): b is string => !!b).sort();
 
   const title = currentCategory
     ? currentCategory.name
@@ -117,6 +154,12 @@ export default async function CatalogPage({ searchParams: searchParamsPromise }:
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+        <Link href="/catalog" className="hover:text-blue-600">Каталог</Link>
+        <span>/</span>
+        <span className="text-gray-900 font-medium">{title}</span>
+      </div>
+
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
         <p className="text-sm text-gray-500 mt-1">Найдено {total} товаров</p>
@@ -128,7 +171,7 @@ export default async function CatalogPage({ searchParams: searchParamsPromise }:
         </div>
 
         <div className="flex-1 min-w-0">
-          <SortBar total={total} current={sp.sortBy} />
+          <SortBar total={total} current={sp.sortBy} sp={sp} />
 
           {products.length === 0 ? (
             <div className="text-center py-20">
@@ -154,28 +197,29 @@ export default async function CatalogPage({ searchParams: searchParamsPromise }:
   );
 }
 
-function SortBar({ total, current }: { total: number; current?: string }) {
+function SortBar({ total, current, sp }: { total: number; current?: string; sp: SearchParamsType }) {
   const sorts = [
     { value: "newest", label: "Новинки" },
     { value: "price_asc", label: "Цена ↑" },
     { value: "price_desc", label: "Цена ↓" },
   ];
 
+  const buildSort = (sortBy: string) => {
+    const params = new URLSearchParams(
+      Object.fromEntries(Object.entries(sp).filter(([, v]) => v !== undefined)) as Record<string, string>
+    );
+    params.set("sortBy", sortBy);
+    return "?" + params.toString();
+  };
+
   return (
     <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
       <span className="text-sm text-gray-500">{total} товаров</span>
       <div className="flex items-center gap-1">
         {sorts.map((s) => (
-          <a
-            key={s.value}
-            href={"?" + new URLSearchParams({ sortBy: s.value }).toString()}
-            className={
-              "px-3 py-1.5 text-xs rounded-lg transition-colors " +
-              ((current || "newest") === s.value
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200")
-            }
-          >
+          <a key={s.value} href={buildSort(s.value)}
+            className={"px-3 py-1.5 text-xs rounded-lg transition-colors " +
+              ((current || "newest") === s.value ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200")}>
             {s.label}
           </a>
         ))}
@@ -184,20 +228,10 @@ function SortBar({ total, current }: { total: number; current?: string }) {
   );
 }
 
-function Pagination({
-  current,
-  total,
-  searchParams,
-}: {
-  current: number;
-  total: number;
-  searchParams: Record<string, string | undefined>;
-}) {
+function Pagination({ current, total, searchParams }: { current: number; total: number; searchParams: Record<string, string | undefined> }) {
   const buildUrl = (page: number) => {
     const params = new URLSearchParams(
-      Object.fromEntries(
-        Object.entries(searchParams).filter(([, v]) => v !== undefined)
-      ) as Record<string, string>
+      Object.fromEntries(Object.entries(searchParams).filter(([, v]) => v !== undefined)) as Record<string, string>
     );
     params.set("page", String(page));
     return "?" + params.toString();
@@ -213,26 +247,17 @@ function Pagination({
   return (
     <div className="flex items-center justify-center gap-2 mt-8">
       {current > 1 && (
-        <a href={buildUrl(current - 1)} className="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 flex items-center">
-          Назад
-        </a>
+        <a href={buildUrl(current - 1)} className="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 flex items-center">Назад</a>
       )}
       {pages.map((p) => (
-        <a
-          key={p}
-          href={buildUrl(p)}
-          className={
-            "h-9 w-9 rounded-lg text-sm flex items-center justify-center transition-colors " +
-            (p === current ? "bg-blue-600 text-white" : "border border-gray-200 text-gray-600 hover:bg-gray-50")
-          }
-        >
+        <a key={p} href={buildUrl(p)}
+          className={"h-9 w-9 rounded-lg text-sm flex items-center justify-center transition-colors " +
+            (p === current ? "bg-blue-600 text-white" : "border border-gray-200 text-gray-600 hover:bg-gray-50")}>
           {p}
         </a>
       ))}
       {current < total && (
-        <a href={buildUrl(current + 1)} className="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 flex items-center">
-          Вперёд
-        </a>
+        <a href={buildUrl(current + 1)} className="h-9 px-3 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 flex items-center">Вперёд</a>
       )}
     </div>
   );

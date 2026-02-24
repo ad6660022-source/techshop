@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import { AddPromoForm } from "@/components/admin/AddPromoForm";
+import { DeletePromoButton } from "@/components/admin/DeletePromoButton";
 import { Tag, CheckCircle, XCircle } from "lucide-react";
 
 export default async function AdminPromoPage() {
@@ -81,7 +82,10 @@ export default async function AdminPromoPage() {
                       )}
                     </div>
                   </div>
-                  <Tag className="w-5 h-5 text-gray-300 shrink-0 mt-1" />
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Tag className="w-5 h-5 text-gray-300" />
+                    <DeletePromoButton id={promo.id} />
+                  </div>
                 </div>
               </div>
             );

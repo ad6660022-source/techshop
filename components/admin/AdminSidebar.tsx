@@ -12,6 +12,7 @@ import {
   LogOut,
   Zap,
   ExternalLink,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { href: "/admin/orders", label: "Заказы", icon: ShoppingBag },
   { href: "/admin/categories", label: "Категории", icon: FolderOpen },
   { href: "/admin/promo", label: "Промокоды", icon: Tag },
+  { href: "/admin/support", label: "Поддержка", icon: MessageCircle },
 ];
 
 export function AdminSidebar() {

@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/store/ProductCard";
 import { ArrowRight, Truck, Shield, RotateCcw, Headphones } from "lucide-react";
@@ -9,7 +10,7 @@ async function getFeaturedProducts() {
   return prisma.product.findMany({
     where: { isActive: true, isFeatured: true },
     include: {
-      images: { orderBy: { sortOrder: "asc" }, take: 1 },
+      images: { orderBy: { sortOrder: "asc" }, take: 3 },
       category: true,
     },
     take: 4,
@@ -20,7 +21,7 @@ async function getNewProducts() {
   return prisma.product.findMany({
     where: { isActive: true, isNew: true },
     include: {
-      images: { orderBy: { sortOrder: "asc" }, take: 1 },
+      images: { orderBy: { sortOrder: "asc" }, take: 3 },
       category: true,
     },
     take: 4,
@@ -142,13 +143,27 @@ export default async function HomePage() {
             <Link
               key={cat.id}
               href={`/catalog?category=${cat.slug}`}
-              className="group flex flex-col items-center p-6 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 text-center"
+              className="group flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 overflow-hidden"
             >
-              <div className="text-4xl mb-3">{cat.icon || "📦"}</div>
-              <h3 className="font-semibold text-gray-900 text-sm">{cat.name}</h3>
-              <p className="text-xs text-gray-500 mt-1">
-                {cat._count.products} товаров
-              </p>
+              <div className="relative h-36 bg-gray-50">
+                {cat.image ? (
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 640px) 50vw, 25vw"
+                  />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-5xl">
+                    {cat.icon || "📦"}
+                  </div>
+                )}
+              </div>
+              <div className="p-4 text-center">
+                <h3 className="font-semibold text-gray-900 text-sm">{cat.name}</h3>
+                <p className="text-xs text-gray-500 mt-1">{cat._count.products} товаров</p>
+              </div>
             </Link>
           ))}
         </div>
