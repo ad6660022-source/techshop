@@ -54,6 +54,8 @@ export const ORDER_STATUS_LABELS: Record<string, string> = {
   PROCESSING: "В обработке",
   SHIPPED: "Отправлен",
   DELIVERED: "Доставлен",
+  RETURNING: "Едет обратно",
+  RETURNED: "Возвращён",
   CANCELLED: "Отменён",
 };
 
@@ -63,6 +65,8 @@ export const ORDER_STATUS_COLORS: Record<string, string> = {
   PROCESSING: "bg-purple-100 text-purple-800",
   SHIPPED: "bg-indigo-100 text-indigo-800",
   DELIVERED: "bg-green-100 text-green-800",
+  RETURNING: "bg-orange-100 text-orange-800",
+  RETURNED: "bg-teal-100 text-teal-800",
   CANCELLED: "bg-red-100 text-red-800",
 };
 

@@ -13,6 +13,7 @@ import {
   Zap,
   ExternalLink,
   MessageCircle,
+  PackageX,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { href: "/admin", label: "Дашборд", icon: LayoutDashboard, exact: true },
   { href: "/admin/products", label: "Товары", icon: Package },
   { href: "/admin/orders", label: "Заказы", icon: ShoppingBag },
+  { href: "/admin/returns", label: "Возвраты", icon: PackageX },
   { href: "/admin/categories", label: "Категории", icon: FolderOpen },
   { href: "/admin/promo", label: "Промокоды", icon: Tag },
   { href: "/admin/support", label: "Поддержка", icon: MessageCircle },

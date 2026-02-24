@@ -16,11 +16,36 @@ export async function PATCH(
 
     const { status, paymentStatus } = await req.json();
 
-    // Block order status changes if already cancelled
     if (status) {
-      const existing = await prisma.order.findUnique({ where: { id: params.id }, select: { status: true } });
+      const existing = await prisma.order.findUnique({
+        where: { id: params.id },
+        include: { items: true },
+      });
+
       if (existing?.status === "CANCELLED") {
         return NextResponse.json({ error: "Нельзя изменить статус отменённого заказа" }, { status: 400 });
+      }
+
+      const PRE_SHIP = ["PENDING", "CONFIRMED", "PROCESSING"];
+
+      // Admin cancels pre-ship order → restore stock
+      if (status === "CANCELLED" && existing && PRE_SHIP.includes(existing.status)) {
+        for (const item of existing.items) {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } },
+          });
+        }
+      }
+
+      // Item returned to warehouse → restore stock
+      if (status === "RETURNED" && existing?.status === "RETURNING") {
+        for (const item of existing.items) {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } },
+          });
+        }
       }
     }
 
