@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, BarChart2, Star, Check } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
 import { useWishlistStore } from "@/lib/store/wishlist";
@@ -18,6 +19,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, className }: ProductCardProps) {
+  const router = useRouter();
   const addToCart = useCartStore((s) => s.addItem);
   const { toggleItem: toggleWishlist, isInWishlist } = useWishlistStore();
   const { toggleItem: toggleCompare, isInCompare } = useCompareStore();
@@ -49,7 +51,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
     setAdded(true);
     toast.success("Добавлено в корзину", {
       description: product.name,
-      action: { label: "Открыть", onClick: () => window.location.href = "/cart" },
+      action: { label: "Открыть", onClick: () => router.push("/cart") },
     });
     setTimeout(() => setAdded(false), 2000);
   };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ShoppingCart, Heart, BarChart2, Check } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
 import { useWishlistStore } from "@/lib/store/wishlist";
@@ -14,6 +15,7 @@ interface ProductActionsProps {
 }
 
 export function ProductActions({ product }: ProductActionsProps) {
+  const router = useRouter();
   const addToCart = useCartStore((s) => s.addItem);
   const { toggleItem: toggleWishlist, isInWishlist } = useWishlistStore();
   const { toggleItem: toggleCompare, isInCompare } = useCompareStore();
@@ -28,7 +30,7 @@ export function ProductActions({ product }: ProductActionsProps) {
     setAdded(true);
     toast.success("Добавлено в корзину", {
       description: product.name,
-      action: { label: "Открыть корзину", onClick: () => window.location.href = "/cart" },
+      action: { label: "Открыть корзину", onClick: () => router.push("/cart") },
     });
     setTimeout(() => setAdded(false), 2000);
   };
