@@ -258,6 +258,23 @@ model WishlistItem {
   @@unique([userId, productId])
 }
 
+// ============ BANNERS ============
+// Recommended image size: 1440×560px (JPG/PNG/WebP, max 3MB)
+// Video: MP4/WebM, max 20MB, auto-play muted loop
+
+model Banner {
+  id         String   @id @default(cuid())
+  title      String?
+  subtitle   String?
+  imageUrl   String?
+  videoUrl   String?
+  linkUrl    String?
+  linkLabel  String?
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+}
+
 // ============ MESSENGERS ============
 
 model Messenger {

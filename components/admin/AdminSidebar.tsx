@@ -16,11 +16,13 @@ import {
   PackageX,
   Star,
   MessagesSquare,
+  Images,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Дашборд", icon: LayoutDashboard, exact: true },
+  { href: "/admin/banners", label: "Баннеры", icon: Images },
   { href: "/admin/products", label: "Товары", icon: Package },
   { href: "/admin/orders", label: "Заказы", icon: ShoppingBag },
   { href: "/admin/returns", label: "Возвраты", icon: PackageX },

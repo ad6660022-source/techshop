@@ -9,66 +9,49 @@
 
 :root {
   /* Backgrounds */
-  --bg:        #faf8f3;
-  --bg-soft:   #f3ede0;
+  --bg:        #faf9f5;
+  --bg-soft:   #f4f0e6;
   --bg-card:   #ffffff;
-  --bg-muted:  #ede5d2;
-  --bg-deep:   #e4d9c2;
+  --bg-muted:  #ede7d8;
+  --bg-deep:   #e5dcc8;
 
   /* Borders */
-  --border:        #d4c4a4;
-  --border-soft:   #e4d9c4;
-  --border-strong: #b8a47c;
+  --border:        #d8cbb4;
+  --border-soft:   #e8e0cc;
+  --border-strong: #c0ae8c;
 
   /* Text */
-  --text:         #241a0c;
-  --text-sec:     #5a3e1e;
-  --text-muted:   #8a6e48;
-  --text-faint:   #b8a07a;
+  --text:         #221c10;
+  --text-sec:     #4e3e20;
+  --text-muted:   #7e6840;
+  --text-faint:   #b09870;
 
-  /* Brand — warm dark brown */
-  --brand:       #6b4c2a;
-  --brand-hover: #573d22;
-  --brand-light: #8a6236;
+  /* Brand — warm caramel/honey (lighter than before) */
+  --brand:        #8c6530;
+  --brand-hover:  #745228;
+  --brand-light:  #a8804a;
+  --brand-pale:   #f0e6d0;
 
-  /* Accent — golden amber */
-  --accent:       #b8721e;
-  --accent-hover: #9e6118;
-  --accent-light: #d4904a;
+  /* Accent — warm golden amber */
+  --accent:       #c4882a;
+  --accent-hover: #a87020;
+  --accent-light: #dca84a;
+  --accent-pale:  #faf0d8;
 
   /* Status */
-  --success: #3d7a4a;
-  --error:   #9b3a2a;
+  --success:      #3a7248;
+  --success-pale: #e6f2ea;
+  --error:        #943828;
+  --error-pale:   #fdecea;
 
-  /* Shadows */
-  --shadow-sm:  0 1px 3px rgba(100, 72, 32, 0.08);
-  --shadow-md:  0 4px 12px rgba(100, 72, 32, 0.12);
-  --shadow-lg:  0 8px 28px rgba(100, 72, 32, 0.16);
-  --shadow-xl:  0 16px 48px rgba(100, 72, 32, 0.20);
-}
-
-@theme inline {
-  --color-bg:           var(--bg);
-  --color-bg-soft:      var(--bg-soft);
-  --color-bg-card:      var(--bg-card);
-  --color-bg-muted:     var(--bg-muted);
-  --color-bg-deep:      var(--bg-deep);
-  --color-border:       var(--border);
-  --color-border-soft:  var(--border-soft);
-  --color-text:         var(--text);
-  --color-text-sec:     var(--text-sec);
-  --color-text-muted:   var(--text-muted);
-  --color-text-faint:   var(--text-faint);
-  --color-brand:        var(--brand);
-  --color-brand-hover:  var(--brand-hover);
-  --color-accent:       var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-success:      var(--success);
-  --color-error:        var(--error);
+  /* Shadows — warm tinted */
+  --shadow-sm: 0 1px 3px rgba(80, 56, 20, 0.07);
+  --shadow-md: 0 4px 14px rgba(80, 56, 20, 0.10);
+  --shadow-lg: 0 8px 28px rgba(80, 56, 20, 0.14);
+  --shadow-xl: 0 16px 48px rgba(80, 56, 20, 0.18);
 }
 
 * { box-sizing: border-box; }
-
 html { scroll-behavior: smooth; }
 
 body {
@@ -101,121 +84,20 @@ body {
 .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 
-/* Input base */
-.input {
-  width: 100%;
-  height: 40px;
-  padding: 0 14px;
-  background: var(--bg-card);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  color: var(--text);
-  font-size: 14px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+/* Carousel animation */
+@keyframes carousel-fade {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
 }
-.input::placeholder { color: var(--text-faint); }
-.input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(184, 114, 30, 0.12);
-}
+.carousel-slide-enter { animation: carousel-fade 0.6s ease forwards; }
 
-/* Card */
-.card {
-  background: var(--bg-card);
-  border: 1.5px solid var(--border-soft);
-  border-radius: 16px;
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+/* Shimmer for skeleton */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
 }
-.card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--border);
-}
-
-/* Buttons */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 22px;
-  background: var(--brand);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
-  box-shadow: 0 2px 8px rgba(107, 76, 42, 0.25);
-}
-.btn-primary:hover {
-  background: var(--brand-hover);
-  box-shadow: 0 4px 14px rgba(107, 76, 42, 0.35);
-}
-.btn-primary:active { transform: scale(0.98); }
-
-.btn-accent {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 44px;
-  padding: 0 22px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
-  box-shadow: 0 2px 8px rgba(184, 114, 30, 0.30);
-}
-.btn-accent:hover {
-  background: var(--accent-hover);
-  box-shadow: 0 4px 14px rgba(184, 114, 30, 0.40);
-}
-.btn-accent:active { transform: scale(0.98); }
-
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 16px;
-  background: transparent;
-  color: var(--text-sec);
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 10px;
-  border: 1.5px solid var(--border);
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-.btn-ghost:hover {
-  background: var(--bg-soft);
-  border-color: var(--border-strong);
-  color: var(--text);
-}
-
-/* Section divider */
-.divider {
-  height: 1px;
-  background: var(--border-soft);
-}
-
-/* Badge */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  height: 22px;
-  padding: 0 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-soft) 25%, var(--bg-muted) 50%, var(--bg-soft) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite;
 }

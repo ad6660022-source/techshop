@@ -5,6 +5,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/store/ProductCard";
 import { ArrowRight, Zap, Truck, Shield, RotateCcw, MessageCircle } from "lucide-react";
+import { HeroCarousel } from "@/components/store/HeroCarousel";
 
 function withRating<T extends { reviews: { rating: number }[]; _count: { orderItems: number } }>(
   products: T[]
@@ -43,6 +44,13 @@ async function getNewProducts() {
     take: 4,
   });
   return withRating(products);
+}
+
+async function getBanners() {
+  return prisma.banner.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+  });
 }
 
 async function getCategories() {
@@ -87,70 +95,18 @@ const BENEFITS = [
 ];
 
 export default async function HomePage() {
-  const [featured, newProducts, categories] = await Promise.all([
+  const [featured, newProducts, categories, banners] = await Promise.all([
     getFeaturedProducts(),
     getNewProducts(),
     getCategories(),
+    getBanners(),
   ]);
 
   return (
-    <div className="bg-[#faf8f3]">
+    <div className="bg-[#faf9f5]">
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-[#241a0c]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_50%,rgba(184,114,30,0.15)_0%,transparent_70%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_80%,rgba(107,76,42,0.20)_0%,transparent_60%)]" />
-
-        <div className="relative max-w-7xl mx-auto px-4 py-24 md:py-32">
-          <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 bg-[#b8721e]/20 border border-[#b8721e]/30 rounded-full px-4 py-1.5 text-[13px] text-[#d4904a] mb-8">
-              <Zap className="w-3.5 h-3.5 text-[#d4904a]" fill="currentColor" />
-              Новинки уже в наличии
-            </div>
-
-            <h1 className="text-5xl md:text-6xl font-black leading-[1.05] tracking-tight text-white mb-6">
-              Техника,{" "}
-              <span className="text-[#d4904a]">которая</span>
-              <br />
-              <span className="text-[#d4904a]">работает</span>
-            </h1>
-
-            <p className="text-[16px] text-[#8a6e48] mb-10 leading-relaxed">
-              Смартфоны, ноутбуки, наушники от ведущих брендов.
-              Заказ через мессенджер — просто и быстро.
-            </p>
-
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/catalog"
-                className="inline-flex items-center gap-2 h-12 px-6 bg-[#b8721e] text-white font-bold rounded-xl hover:bg-[#9e6118] transition-all shadow-[0_4px_16px_rgba(184,114,30,0.40)] hover:shadow-[0_6px_22px_rgba(184,114,30,0.50)] text-[15px]"
-              >
-                Перейти в каталог
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/catalog?featured=true"
-                className="inline-flex items-center gap-2 h-12 px-6 bg-white/8 text-[#e8d4b4] font-semibold rounded-xl hover:bg-white/14 transition-all border border-white/15 hover:border-white/25 text-[15px]"
-              >
-                Хиты продаж
-              </Link>
-            </div>
-
-            <div className="flex flex-wrap gap-8 mt-12 pt-10 border-t border-white/8">
-              {[
-                { value: "10 000+", label: "товаров" },
-                { value: "50 000+", label: "клиентов" },
-                { value: "4.9 ★", label: "средний рейтинг" },
-              ].map((s) => (
-                <div key={s.label}>
-                  <p className="text-[22px] font-black text-white">{s.value}</p>
-                  <p className="text-[13px] text-[#8a6e48]">{s.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Carousel */}
+      <HeroCarousel initialBanners={banners as any} />
 
       {/* Benefits strip */}
       <section className="bg-[#f3ede0] border-b border-[#d4c4a4]">
