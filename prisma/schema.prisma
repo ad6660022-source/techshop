@@ -257,3 +257,15 @@ model WishlistItem {
 
   @@unique([userId, productId])
 }
+
+// ============ MESSENGERS ============
+
+model Messenger {
+  id        String   @id @default(cuid())
+  type      String   // TELEGRAM | VK | MAX | WHATSAPP | PHONE
+  name      String
+  link      String
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}

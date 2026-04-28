@@ -8,34 +8,53 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #111827;
+  --background: #09090f;
+  --surface: #111119;
+  --surface-2: #1c1c28;
+  --surface-3: #252535;
+  --foreground: #f0f0fa;
+  --muted: #7c7c99;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.15);
 
-  /* Brand colors */
-  --brand: #2563eb;
-  --brand-dark: #1d4ed8;
-  --cta: #f97316;
-  --cta-dark: #ea6c0a;
-  --success: #16a34a;
+  /* Brand — electric violet */
+  --brand: #7c3aed;
+  --brand-light: #8b5cf6;
+  --brand-dark: #6d28d9;
+  --brand-glow: rgba(124, 58, 237, 0.35);
+
+  /* Accent — amber spark */
+  --accent: #f59e0b;
+  --accent-dark: #d97706;
+  --accent-glow: rgba(245, 158, 11, 0.3);
+
+  /* Success */
+  --success: #10b981;
 
   /* Grays */
-  --gray-50: #f8fafc;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
-  --gray-300: #cbd5e1;
-  --gray-500: #6b7280;
-  --gray-700: #374151;
-  --gray-900: #111827;
+  --gray-900: #09090f;
+  --gray-800: #111119;
+  --gray-700: #1c1c28;
+  --gray-600: #252535;
+  --gray-500: #3d3d52;
+  --gray-400: #5c5c78;
+  --gray-300: #7c7c99;
+  --gray-200: #a0a0bb;
+  --gray-100: #c8c8dd;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-brand: var(--brand);
+  --color-brand-light: var(--brand-light);
   --color-brand-dark: var(--brand-dark);
-  --color-cta: var(--cta);
-  --color-cta-dark: var(--cta-dark);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
   --color-success: var(--success);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-muted: var(--muted);
 }
 
 body {
@@ -46,36 +65,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
 
 /* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--gray-500); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--brand-light); }
 
-/* Selection color */
-::selection {
-  background: #bfdbfe;
-  color: #1e40af;
-}
+/* Selection */
+::selection { background: var(--brand); color: #fff; }
 
-/* Focus styles */
+/* Focus */
 *:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--brand-light);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -87,56 +92,63 @@ html {
   transition-duration: 200ms;
 }
 
-/* Line clamp utilities */
-.line-clamp-1 {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
-}
-.line-clamp-2 {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-.line-clamp-3 {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-}
+/* Line clamp */
+.line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+.line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 
-/* Product card hover effect */
+/* Product card */
 .product-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(124, 58, 237, 0.2);
 }
 
-/* Button hover effects */
-.btn-primary {
-  background: #2563eb;
+/* Brand glow button */
+.btn-brand {
+  background: var(--brand);
   color: white;
-  transition: background 0.15s ease, transform 0.1s ease;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
 }
-.btn-primary:hover {
-  background: #1d4ed8;
+.btn-brand:hover {
+  background: var(--brand-light);
+  box-shadow: 0 0 20px var(--brand-glow);
 }
-.btn-primary:active {
-  transform: scale(0.98);
+.btn-brand:active { transform: scale(0.98); }
+
+/* Accent button */
+.btn-accent {
+  background: var(--accent);
+  color: #000;
+  font-weight: 700;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+.btn-accent:hover {
+  background: var(--accent-dark);
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+.btn-accent:active { transform: scale(0.98); }
+
+/* Spark animation */
+@keyframes spark-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.15); }
+}
+.spark-pulse { animation: spark-pulse 2s ease-in-out infinite; }
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #8b5cf6, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.btn-cta {
-  background: #f97316;
-  color: white;
-  transition: background 0.15s ease, transform 0.1s ease;
-}
-.btn-cta:hover {
-  background: #ea6c0a;
-}
-.btn-cta:active {
-  transform: scale(0.98);
+/* Glow divider */
+.glow-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brand), var(--accent), transparent);
+  opacity: 0.4;
 }

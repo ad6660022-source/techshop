@@ -5,16 +5,16 @@ import { CustomCursor } from "@/components/CustomCursor";
 
 export const metadata: Metadata = {
   title: {
-    default: "TechShop — магазин техники и электроники",
-    template: "%s | TechShop",
+    default: "ИСКРА — магазин техники и электроники",
+    template: "%s | ИСКРА",
   },
   description:
-    "Современный интернет-магазин техники и электроники. Смартфоны, ноутбуки, наушники и аксессуары с доставкой.",
-  keywords: ["интернет-магазин", "техника", "электроника", "смартфоны", "ноутбуки"],
+    "ИСКРА — интернет-магазин техники и электроники. Смартфоны, ноутбуки, наушники и аксессуары. Заказ через мессенджеры.",
+  keywords: ["интернет-магазин", "техника", "электроника", "смартфоны", "ноутбуки", "ИСКРА"],
   openGraph: {
     type: "website",
     locale: "ru_RU",
-    siteName: "TechShop",
+    siteName: "ИСКРА",
   },
 };
 
@@ -25,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru">
-      <body className="antialiased bg-white text-gray-900 min-h-screen">
+      <body className="antialiased min-h-screen" style={{ background: "#09090f", color: "#f0f0fa" }}>
         <CustomCursor />
         <Providers>{children}</Providers>
       </body>
