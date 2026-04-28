@@ -11,7 +11,6 @@ export function CustomCursor() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Only show on pointer devices (not touch)
     if (window.matchMedia("(pointer: coarse)").matches) return;
     setMounted(true);
 
@@ -25,14 +24,13 @@ export function CustomCursor() {
         "a, button, [role='button'], input, select, textarea, label, [tabindex]"
       );
       if (ringInnerRef.current) {
-        ringInnerRef.current.dataset.hover = isInteractive ? "1" : "0";
-        ringInnerRef.current.style.width = isInteractive ? "48px" : "32px";
-        ringInnerRef.current.style.height = isInteractive ? "48px" : "32px";
+        ringInnerRef.current.style.width = isInteractive ? "44px" : "30px";
+        ringInnerRef.current.style.height = isInteractive ? "44px" : "30px";
         ringInnerRef.current.style.borderColor = isInteractive
-          ? "rgba(37, 99, 235, 0.6)"
-          : "rgba(37, 99, 235, 0.35)";
+          ? "rgba(196, 136, 42, 0.7)"
+          : "rgba(196, 136, 42, 0.4)";
         ringInnerRef.current.style.background = isInteractive
-          ? "rgba(37, 99, 235, 0.07)"
+          ? "rgba(196, 136, 42, 0.08)"
           : "transparent";
       }
     };
@@ -40,7 +38,6 @@ export function CustomCursor() {
     let rafId: number;
 
     const animate = () => {
-      // Lerp ring toward cursor
       ringPos.current.x += (mouse.current.x - ringPos.current.x) * 0.13;
       ringPos.current.y += (mouse.current.y - ringPos.current.y) * 0.13;
 
@@ -86,12 +83,12 @@ export function CustomCursor() {
       >
         <div
           style={{
-            width: 7,
-            height: 7,
-            background: "#2563eb",
+            width: 6,
+            height: 6,
+            background: "#c4882a",
             borderRadius: "50%",
             transform: "translate(-50%, -50%)",
-            boxShadow: "0 0 6px rgba(37, 99, 235, 0.5)",
+            boxShadow: "0 0 8px rgba(196, 136, 42, 0.6)",
             pointerEvents: "none",
           }}
         />
@@ -113,14 +110,14 @@ export function CustomCursor() {
         <div
           ref={ringInnerRef}
           style={{
-            width: 32,
-            height: 32,
-            border: "1.5px solid rgba(37, 99, 235, 0.35)",
+            width: 30,
+            height: 30,
+            border: "1.5px solid rgba(196, 136, 42, 0.4)",
             borderRadius: "50%",
             transform: "translate(-50%, -50%)",
             pointerEvents: "none",
             transition:
-              "width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, border-color 0.25s ease",
+              "width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, border-color 0.2s ease",
             background: "transparent",
           }}
         />

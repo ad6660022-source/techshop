@@ -46,12 +46,12 @@ export function AdminSidebar() {
       {/* Logo */}
       <div className="p-4 border-b border-white/5">
         <Link href="/admin" className="flex items-center gap-2.5">
-          <div className="relative w-8 h-8 bg-gradient-to-br from-violet-500 to-violet-700 rounded-lg flex items-center justify-center shadow-lg shadow-violet-900/50">
+          <div className="relative w-8 h-8 rounded-lg flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(135deg, #c4882a, #8c6530)", boxShadow: "0 4px 12px rgba(196,136,42,0.35)" }}>
             <Zap className="w-4 h-4 text-white" fill="currentColor" />
             <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-transparent" />
           </div>
           <div>
-            <p className="text-sm font-black tracking-tight">ИС<span className="text-violet-400">КРА</span></p>
+            <p className="text-sm font-black tracking-tight">ИС<span style={{ color: "#c4882a" }}>КРА</span></p>
             <p className="text-xs text-[#3d3d52]">Панель управления</p>
           </div>
         </Link>
@@ -66,9 +66,14 @@ export function AdminSidebar() {
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
               isActive(item.href, item.exact)
-                ? "bg-violet-600/20 text-violet-300 border border-violet-500/20"
+                ? "border"
                 : "text-[#7c7c99] hover:bg-white/5 hover:text-white"
             )}
+            style={isActive(item.href, item.exact) ? {
+              background: "rgba(196,136,42,0.15)",
+              color: "#c4882a",
+              borderColor: "rgba(196,136,42,0.25)",
+            } : {}}
           >
             <item.icon className="w-4 h-4 flex-shrink-0" />
             {item.label}

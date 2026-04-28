@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Pencil, Check, X, MessageCircle, Phone, Send } from "lucide-react";
+import { Plus, Trash2, Pencil, Check, MessageCircle, Phone, Send } from "lucide-react";
 import { toast } from "sonner";
 
 interface Messenger {
@@ -26,10 +26,18 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
   VK: <MessageCircle className="w-4 h-4 text-[#0077ff]" />,
   MAX: <MessageCircle className="w-4 h-4 text-[#ff6b00]" />,
   WHATSAPP: <MessageCircle className="w-4 h-4 text-[#25d366]" />,
-  PHONE: <Phone className="w-4 h-4 text-violet-400" />,
+  PHONE: <Phone className="w-4 h-4 text-[#c4882a]" />,
 };
 
 const empty = { type: "TELEGRAM", name: "", link: "", isActive: true, sortOrder: 0 };
+
+function normalizeTelegramLink(type: string, raw: string): string {
+  if (type !== "TELEGRAM") return raw.trim();
+  const val = raw.trim();
+  if (val.startsWith("@")) return `https://t.me/${val.slice(1)}`;
+  if (val.startsWith("t.me/")) return `https://${val}`;
+  return val;
+}
 
 export default function AdminMessengersPage() {
   const [messengers, setMessengers] = useState<Messenger[]>([]);
@@ -57,10 +65,14 @@ export default function AdminMessengersPage() {
     try {
       const url = editId ? `/api/admin/messengers/${editId}` : "/api/admin/messengers";
       const method = editId ? "PUT" : "POST";
+      const payload = {
+        ...form,
+        link: normalizeTelegramLink(form.type, form.link),
+      };
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error();
       toast.success(editId ? "Контакт обновлён" : "Контакт добавлен");
@@ -84,12 +96,8 @@ export default function AdminMessengersPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Удалить контакт?")) return;
     const res = await fetch(`/api/admin/messengers/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      toast.success("Удалено");
-      await load();
-    } else {
-      toast.error("Ошибка удаления");
-    }
+    if (res.ok) { toast.success("Удалено"); await load(); }
+    else toast.error("Ошибка удаления");
   };
 
   const handleToggle = async (m: Messenger) => {
@@ -101,23 +109,32 @@ export default function AdminMessengersPage() {
     await load();
   };
 
-  const cancelEdit = () => {
-    setForm({ ...empty });
-    setEditId(null);
-    setShowForm(false);
-  };
+  const cancelEdit = () => { setForm({ ...empty }); setEditId(null); setShowForm(false); };
+
+  const linkPlaceholder = form.type === "TELEGRAM"
+    ? "@username или https://t.me/username"
+    : form.type === "PHONE"
+    ? "+79001234567"
+    : form.type === "WHATSAPP"
+    ? "https://wa.me/79001234567"
+    : form.type === "VK"
+    ? "https://vk.com/id123 или @username"
+    : "https://...";
 
   return (
     <div className="p-6 max-w-3xl">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Менеджеры и мессенджеры</h1>
-          <p className="text-gray-400 text-sm mt-1">Контакты, которые видят покупатели при нажатии «Купить»</p>
+          <p className="text-gray-400 text-sm mt-1">Контакты, которые видят покупатели при оформлении заказа</p>
         </div>
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 h-9 px-4 bg-violet-600 text-white text-sm font-medium rounded-lg hover:bg-violet-700 transition-colors"
+            className="flex items-center gap-2 h-9 px-4 text-white text-sm font-medium rounded-lg transition-colors"
+            style={{ background: "#c4882a" }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#a87020"}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = "#c4882a"}
           >
             <Plus className="w-4 h-4" />
             Добавить
@@ -135,8 +152,9 @@ export default function AdminMessengersPage() {
               <label className="block text-xs text-gray-400 mb-1.5">Мессенджер</label>
               <select
                 value={form.type}
-                onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-                className="w-full h-9 bg-[#111119] border border-white/10 rounded-lg px-3 text-sm text-white focus:outline-none focus:border-violet-500"
+                onChange={(e) => setForm((f) => ({ ...f, type: e.target.value, link: "" }))}
+                className="w-full h-9 bg-[#111119] border border-white/10 rounded-lg px-3 text-sm text-white focus:outline-none"
+                style={{ accentColor: "#c4882a" }}
               >
                 {TYPES.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
@@ -150,21 +168,31 @@ export default function AdminMessengersPage() {
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 placeholder="Александр"
-                className="w-full h-9 bg-[#111119] border border-white/10 rounded-lg px-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-violet-500"
+                className="w-full h-9 bg-[#111119] border border-white/10 rounded-lg px-3 text-sm text-white placeholder-gray-600 focus:outline-none"
+                style={{ borderColor: undefined }}
+                onFocus={e => e.currentTarget.style.borderColor = "#c4882a"}
+                onBlur={e => e.currentTarget.style.borderColor = ""}
               />
             </div>
           </div>
           <div>
             <label className="block text-xs text-gray-400 mb-1.5">
-              Ссылка / номер телефона
+              {form.type === "TELEGRAM" ? "Никнейм или ссылка" : form.type === "PHONE" ? "Номер телефона" : "Ссылка"}
             </label>
             <input
               type="text"
               value={form.link}
               onChange={(e) => setForm((f) => ({ ...f, link: e.target.value }))}
-              placeholder="https://t.me/manager или +79001234567"
-              className="w-full h-9 bg-[#111119] border border-white/10 rounded-lg px-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-violet-500"
+              placeholder={linkPlaceholder}
+              className="w-full h-9 bg-[#111119] border border-white/10 rounded-lg px-3 text-sm text-white placeholder-gray-600 focus:outline-none"
+              onFocus={e => e.currentTarget.style.borderColor = "#c4882a"}
+              onBlur={e => e.currentTarget.style.borderColor = ""}
             />
+            {form.type === "TELEGRAM" && (
+              <p className="text-[11px] text-gray-500 mt-1">
+                Можно вводить <span className="text-gray-400 font-mono">@username</span> — ссылка сформируется автоматически
+              </p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -173,16 +201,19 @@ export default function AdminMessengersPage() {
                 type="number"
                 value={form.sortOrder}
                 onChange={(e) => setForm((f) => ({ ...f, sortOrder: parseInt(e.target.value) || 0 }))}
-                className="w-full h-9 bg-[#111119] border border-white/10 rounded-lg px-3 text-sm text-white focus:outline-none focus:border-violet-500"
+                className="w-full h-9 bg-[#111119] border border-white/10 rounded-lg px-3 text-sm text-white focus:outline-none"
+                onFocus={e => e.currentTarget.style.borderColor = "#c4882a"}
+                onBlur={e => e.currentTarget.style.borderColor = ""}
               />
             </div>
             <div className="flex items-end">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2" style={{ cursor: "none" }}>
                 <input
                   type="checkbox"
                   checked={form.isActive}
                   onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
-                  className="w-4 h-4 accent-violet-500"
+                  className="w-4 h-4"
+                  style={{ accentColor: "#c4882a" }}
                 />
                 <span className="text-sm text-gray-300">Активен</span>
               </label>
@@ -192,7 +223,10 @@ export default function AdminMessengersPage() {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 h-9 px-4 bg-violet-600 text-white text-sm font-medium rounded-lg hover:bg-violet-700 disabled:opacity-60 transition-colors"
+              className="flex items-center gap-2 h-9 px-4 text-white text-sm font-medium rounded-lg disabled:opacity-60 transition-colors"
+              style={{ background: "#c4882a" }}
+              onMouseEnter={e => !saving && ((e.currentTarget as HTMLElement).style.background = "#a87020")}
+              onMouseLeave={e => !saving && ((e.currentTarget as HTMLElement).style.background = "#c4882a")}
             >
               <Check className="w-4 h-4" />
               {saving ? "Сохраняем..." : "Сохранить"}
@@ -223,9 +257,7 @@ export default function AdminMessengersPage() {
             return (
               <div
                 key={m.id}
-                className={`flex items-center gap-4 bg-[#1c1c28] border rounded-xl px-4 py-3 transition-all ${
-                  m.isActive ? "border-white/10" : "border-white/5 opacity-50"
-                }`}
+                className={`flex items-center gap-4 bg-[#1c1c28] border rounded-xl px-4 py-3 transition-all ${m.isActive ? "border-white/10" : "border-white/5 opacity-50"}`}
               >
                 <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
                   {TYPE_ICONS[m.type] || <MessageCircle className="w-4 h-4 text-gray-400" />}
@@ -237,11 +269,7 @@ export default function AdminMessengersPage() {
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <button
                     onClick={() => handleToggle(m)}
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-colors ${
-                      m.isActive
-                        ? "bg-green-500/10 text-green-400 hover:bg-green-500/20"
-                        : "bg-white/5 text-gray-500 hover:bg-white/10"
-                    }`}
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-colors ${m.isActive ? "bg-green-500/10 text-green-400 hover:bg-green-500/20" : "bg-white/5 text-gray-500 hover:bg-white/10"}`}
                     title={m.isActive ? "Деактивировать" : "Активировать"}
                   >
                     <Check className="w-3.5 h-3.5" />

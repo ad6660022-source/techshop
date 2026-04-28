@@ -73,7 +73,7 @@ export function HeroCarousel({ initialBanners }: HeroCarouselProps) {
         ) : null}
 
         {/* Dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-transparent" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.30) 50%, transparent 100%)" }} />
 
         {/* Content */}
         {(slide.title || slide.subtitle || slide.linkUrl) && (
