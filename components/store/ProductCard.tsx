@@ -63,9 +63,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
   return (
     <>
       <Link href={`/product/${product.slug}`} className={cn("group block", className)}>
-        <div className="bg-[#111119] rounded-2xl border border-white/8 overflow-hidden transition-all duration-200 group-hover:border-violet-500/25 group-hover:shadow-xl group-hover:shadow-violet-900/20 group-hover:-translate-y-1 h-full flex flex-col">
+        <div className="bg-white rounded-2xl border border-[#e4d9c4] overflow-hidden transition-all duration-200 group-hover:border-[#c4a87a] group-hover:shadow-[0_6px_24px_rgba(100,72,32,0.12)] group-hover:-translate-y-1 h-full flex flex-col">
+
+          {/* Image area */}
           <div
-            className="relative aspect-square bg-[#1c1c28] overflow-hidden"
+            className="relative aspect-square bg-[#f3ede0] overflow-hidden"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
           >
@@ -73,86 +75,97 @@ export function ProductCard({ product, className }: ProductCardProps) {
               src={images[imgIdx]?.url || images[0].url}
               alt={images[imgIdx]?.alt || product.name}
               fill
-              className="object-contain p-4 transition-all duration-200 group-hover:scale-105"
+              className="object-contain p-4 transition-transform duration-300 group-hover:scale-[1.04]"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
 
+            {/* Image dots */}
             {images.length > 1 && (
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 {images.map((_, i) => (
-                  <div key={i} className={cn("w-1.5 h-1.5 rounded-full transition-colors", i === imgIdx ? "bg-violet-400" : "bg-white/30")} />
+                  <div key={i} className={cn("w-1.5 h-1.5 rounded-full transition-colors", i === imgIdx ? "bg-[#b8721e]" : "bg-[#c4a87a]/60")} />
                 ))}
               </div>
             )}
 
-            <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {/* Badges */}
+            <div className="absolute top-2.5 left-2.5 flex flex-col gap-1">
               {discount > 0 && (
-                <span className="bg-amber-500 text-black text-xs font-bold px-2 py-0.5 rounded-md">-{discount}%</span>
+                <span className="bg-[#9b3a2a] text-white text-[11px] font-bold px-2 py-0.5 rounded-md">-{discount}%</span>
               )}
               {product.isNew && (
-                <span className="bg-violet-600 text-white text-xs font-bold px-2 py-0.5 rounded-md">Новинка</span>
+                <span className="bg-[#6b4c2a] text-white text-[11px] font-bold px-2 py-0.5 rounded-md">Новинка</span>
               )}
               {product.stock === 0 && (
-                <span className="bg-white/10 text-[#7c7c99] text-xs font-bold px-2 py-0.5 rounded-md">Нет в наличии</span>
+                <span className="bg-[#ede5d2] text-[#8a6e48] text-[11px] font-bold px-2 py-0.5 rounded-md">Нет в наличии</span>
               )}
             </div>
 
-            <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+            {/* Hover actions */}
+            <div className="absolute top-2.5 right-2.5 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
               <button onClick={handleWishlist}
-                className={cn("w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition-colors",
-                  inWishlist ? "bg-red-500 text-white" : "bg-[#111119] text-[#7c7c99] hover:bg-red-500/20 hover:text-red-400")}
+                className={cn("w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition-colors border",
+                  inWishlist
+                    ? "bg-[#9b3a2a] border-[#9b3a2a] text-white"
+                    : "bg-white border-[#e4d9c4] text-[#8a6e48] hover:bg-[#fdf0ec] hover:border-[#9b3a2a] hover:text-[#9b3a2a]")}
                 title="В избранное">
-                <Heart className="w-4 h-4" fill={inWishlist ? "currentColor" : "none"} />
+                <Heart className="w-3.5 h-3.5" fill={inWishlist ? "currentColor" : "none"} />
               </button>
               <button onClick={handleCompare}
-                className={cn("w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition-colors",
-                  inCompare ? "bg-violet-500 text-white" : "bg-[#111119] text-[#7c7c99] hover:bg-violet-500/20 hover:text-violet-400")}
+                className={cn("w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition-colors border",
+                  inCompare
+                    ? "bg-[#6b4c2a] border-[#6b4c2a] text-white"
+                    : "bg-white border-[#e4d9c4] text-[#8a6e48] hover:bg-[#f5ede0] hover:border-[#6b4c2a] hover:text-[#6b4c2a]")}
                 title="Сравнить">
-                <BarChart2 className="w-4 h-4" />
+                <BarChart2 className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
+          {/* Content */}
           <div className="p-4 flex flex-col flex-1">
             {product.brand && (
-              <p className="text-xs text-[#7c7c99] mb-1 font-medium uppercase tracking-wide">{product.brand}</p>
+              <p className="text-[11px] text-[#b8a07a] mb-1 font-semibold uppercase tracking-widest">{product.brand}</p>
             )}
-            <h3 className="text-sm font-medium text-[#f0f0fa] line-clamp-2 flex-1 mb-2">{product.name}</h3>
+            <h3 className="text-[13.5px] font-medium text-[#241a0c] line-clamp-2 flex-1 mb-2.5 leading-snug">{product.name}</h3>
 
+            {/* Rating */}
             {(product.reviewCount ?? 0) > 0 ? (
-              <div className="flex items-center gap-1.5 mb-2">
-                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                <span className="text-xs font-semibold text-[#f0f0fa]">
+              <div className="flex items-center gap-1.5 mb-2.5">
+                <Star className="w-3.5 h-3.5 text-[#b8721e] fill-[#b8721e]" />
+                <span className="text-[12.5px] font-semibold text-[#241a0c]">
                   {(product.avgRating ?? 0).toFixed(1)}
                 </span>
-                <span className="text-xs text-[#7c7c99]">({product.reviewCount} отз.)</span>
+                <span className="text-[12px] text-[#b8a07a]">({product.reviewCount} отз.)</span>
               </div>
             ) : (
-              <div className="mb-2">
-                <span className="text-xs text-[#3d3d52]">Нет отзывов</span>
+              <div className="mb-2.5">
+                <span className="text-[12px] text-[#c4b090]">Нет отзывов</span>
               </div>
             )}
 
-            <div className="mb-3">
+            {/* Price */}
+            <div className="mb-3.5">
               <div className="flex items-baseline gap-2">
-                <span className="text-lg font-bold text-white">{formatPrice(product.price)}</span>
+                <span className="text-[17px] font-bold text-[#241a0c]">{formatPrice(product.price)}</span>
                 {product.oldPrice && (
-                  <span className="text-sm text-[#3d3d52] line-through">{formatPrice(product.oldPrice)}</span>
+                  <span className="text-[13px] text-[#b8a07a] line-through">{formatPrice(product.oldPrice)}</span>
                 )}
               </div>
               {product.stock > 0 && product.stock <= 5 && (
-                <p className="text-xs text-amber-500 font-medium mt-0.5">Осталось {product.stock} шт.</p>
+                <p className="text-[11.5px] text-[#9b3a2a] font-semibold mt-0.5">Осталось {product.stock} шт.</p>
               )}
             </div>
 
+            {/* Buy button */}
             <button
               onClick={handleBuy}
               disabled={product.stock === 0}
               className={cn(
-                "w-full h-9 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-150",
+                "w-full h-9 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all duration-150",
                 product.stock > 0
-                  ? "bg-violet-600 text-white hover:bg-violet-500 active:scale-[0.98]"
-                  : "bg-white/5 text-[#3d3d52] cursor-not-allowed"
+                  ? "bg-[#6b4c2a] text-white hover:bg-[#573d22] active:scale-[0.98] shadow-[0_2px_8px_rgba(107,76,42,0.25)] hover:shadow-[0_4px_12px_rgba(107,76,42,0.35)]"
+                  : "bg-[#f3ede0] text-[#b8a07a] cursor-not-allowed border border-[#e4d9c4]"
               )}
             >
               <MessageCircle className="w-4 h-4" />

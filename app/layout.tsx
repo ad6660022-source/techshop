@@ -25,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru">
-      <body className="antialiased min-h-screen" style={{ background: "#09090f", color: "#f0f0fa" }}>
+      <body className="antialiased min-h-screen" style={{ background: "#faf8f3", color: "#241a0c" }}>
         <CustomCursor />
         <Providers>{children}</Providers>
       </body>

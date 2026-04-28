@@ -28,40 +28,37 @@ export function ProductActions({ product }: ProductActionsProps) {
 
   const handleCompare = () => {
     const success = toggleCompare(product.id);
-    if (!success) {
-      toast.error("Нельзя сравнивать более 4 товаров");
-    } else {
-      toast.success(inCompare ? "Убрано из сравнения" : "Добавлено к сравнению");
-    }
+    if (!success) toast.error("Нельзя сравнивать более 4 товаров");
+    else toast.success(inCompare ? "Убрано из сравнения" : "Добавлено к сравнению");
   };
 
   return (
     <>
       <div className="space-y-3">
-        {/* Buy via messenger */}
+        {/* Main CTA */}
         <button
           onClick={() => product.stock > 0 && setMessengerOpen(true)}
           disabled={product.stock === 0}
           className={cn(
-            "w-full h-12 rounded-xl text-base font-semibold flex items-center justify-center gap-2.5 transition-all duration-200",
+            "w-full h-12 rounded-xl text-[15px] font-bold flex items-center justify-center gap-2.5 transition-all duration-150",
             product.stock > 0
-              ? "bg-violet-600 text-white hover:bg-violet-500 active:scale-[0.98] shadow-lg shadow-violet-900/40 hover:shadow-violet-700/50"
-              : "bg-white/5 text-[#3d3d52] cursor-not-allowed"
+              ? "bg-[#6b4c2a] text-white hover:bg-[#573d22] active:scale-[0.98] shadow-[0_3px_12px_rgba(107,76,42,0.30)] hover:shadow-[0_5px_18px_rgba(107,76,42,0.40)]"
+              : "bg-[#f3ede0] text-[#b8a07a] cursor-not-allowed border border-[#e4d9c4]"
           )}
         >
           <MessageCircle className="w-5 h-5" />
           {product.stock > 0 ? "Купить через мессенджер" : "Нет в наличии"}
         </button>
 
-        {/* Wishlist + Compare */}
-        <div className="flex gap-3">
+        {/* Secondary actions */}
+        <div className="flex gap-2.5">
           <button
             onClick={handleWishlist}
             className={cn(
-              "flex-1 h-10 rounded-xl border text-sm font-medium flex items-center justify-center gap-2 transition-colors",
+              "flex-1 h-10 rounded-xl border text-[13px] font-medium flex items-center justify-center gap-1.5 transition-all",
               inWishlist
-                ? "border-red-500/30 bg-red-500/10 text-red-400"
-                : "border-white/8 text-[#7c7c99] hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
+                ? "border-[#9b3a2a] bg-[#fdf0ec] text-[#9b3a2a]"
+                : "border-[#d4c4a4] text-[#5a3e1e] hover:border-[#9b3a2a] hover:bg-[#fdf0ec] hover:text-[#9b3a2a]"
             )}
           >
             <Heart className="w-4 h-4" fill={inWishlist ? "currentColor" : "none"} />
@@ -71,10 +68,10 @@ export function ProductActions({ product }: ProductActionsProps) {
           <button
             onClick={handleCompare}
             className={cn(
-              "flex-1 h-10 rounded-xl border text-sm font-medium flex items-center justify-center gap-2 transition-colors",
+              "flex-1 h-10 rounded-xl border text-[13px] font-medium flex items-center justify-center gap-1.5 transition-all",
               inCompare
-                ? "border-violet-500/30 bg-violet-500/10 text-violet-400"
-                : "border-white/8 text-[#7c7c99] hover:border-violet-500/30 hover:bg-violet-500/10 hover:text-violet-400"
+                ? "border-[#6b4c2a] bg-[#f5ede0] text-[#6b4c2a]"
+                : "border-[#d4c4a4] text-[#5a3e1e] hover:border-[#6b4c2a] hover:bg-[#f5ede0] hover:text-[#6b4c2a]"
             )}
           >
             <BarChart2 className="w-4 h-4" />
@@ -82,20 +79,20 @@ export function ProductActions({ product }: ProductActionsProps) {
           </button>
         </div>
 
-        {/* Delivery info */}
-        <div className="bg-[#1c1c28] rounded-xl p-4 text-sm text-[#7c7c99] space-y-2 border border-white/5">
-          <p className="flex items-center gap-2">
-            <span className="text-emerald-400">✓</span>
-            Доставка курьером по всей России
-          </p>
-          <p className="flex items-center gap-2">
-            <span className="text-emerald-400">✓</span>
-            Гарантия от производителя
-          </p>
-          <p className="flex items-center gap-2">
-            <span className="text-emerald-400">✓</span>
-            Возврат в течение 14 дней
-          </p>
+        {/* Info block */}
+        <div className="bg-[#f3ede0] rounded-xl border border-[#e4d9c4] p-4 space-y-2.5">
+          {[
+            "Доставка курьером по всей России",
+            "Гарантия от производителя",
+            "Возврат в течение 14 дней",
+          ].map((text) => (
+            <p key={text} className="flex items-center gap-2 text-[13px] text-[#5a3e1e]">
+              <span className="w-4 h-4 rounded-full bg-[#3d7a4a]/15 flex items-center justify-center flex-shrink-0">
+                <span className="text-[#3d7a4a] text-[10px] font-bold">✓</span>
+              </span>
+              {text}
+            </p>
+          ))}
         </div>
       </div>
 
